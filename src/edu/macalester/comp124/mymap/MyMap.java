@@ -45,8 +45,17 @@ public class MyMap <K, V> {
 	 */
 	public void put(K key, V value) {
 		expandIfNecessary();
-		
-		// TODO: Store the key.
+        int listNum = key.hashCode() % buckets.length;
+        for(MyEntry entry : buckets[listNum]) {
+            if (entry.getKey().equals(key)) {
+                    entry.setValue(value);
+                    return;
+            }
+        }
+        MyEntry newEntry = new MyEntry(key, value);
+        List<MyEntry<K, V>> inputList = buckets[listNum];
+        inputList.add(newEntry);
+        numEntries ++;
 	}
 	
 	/**
@@ -57,7 +66,13 @@ public class MyMap <K, V> {
 	 * @return
 	 */
 	public V get(K key) {
-		// TODO: retrieve the key.
+        int listNum = key.hashCode() % buckets.length;
+        for(MyEntry<K, V> entry : buckets[listNum]) {
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
+
+            }
+        }
 		return null;
 	}
 	
@@ -65,7 +80,17 @@ public class MyMap <K, V> {
 	 * Expands the table to double the size, if necessary.
 	 */
 	private void expandIfNecessary() {
-		// TODO: expand if necessary
+        if(numEntries / buckets.length < loadFactor){
+            return;
+        }
+        List<MyEntry<K, V>> [] newBuckets = newArrayOfEntries(buckets.length * 2);
+        for(List<MyEntry<K, V>> list : buckets) {
+            for(MyEntry<K, V> entry : list) {
+                int newHash = entry.getKey().hashCode() % newBuckets.length;
+                newBuckets[newHash].add(entry);
+            }
+        }
+        buckets = newBuckets;
 	}
 	
 	/**
